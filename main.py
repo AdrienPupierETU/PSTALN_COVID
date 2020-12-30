@@ -37,4 +37,11 @@ if args.bert :
     
     pe.fit(bertModel,epochs=5,train_loader=train_loader,valid_loader=valid_loader,lr=2e-5,class_weights=YCatWeight)
 if args.RNN :
+    X_trainBibBPEmb, YCat_trainBibBPEmb = pe.prepare_textsBpemb(TrainBib, Cat_TrainBib,MAXLEN)
+    X_validBibBPEmb, YCat_validvBPEmb = pe.prepare_textsBpemb(ValBib, Cat_ValBib,MAXLEN)
+    X_testBibBPEmb, YCat_testBibBPEmb = pe.prepare_textsBpemb(TestBib, Cat_TestBib,MAXLEN)
     
+    train_loader,valid_loader,test_loader=pe.getLoader(X_trainBibBPEmb,YCat_trainBibBPEmb,X_validBibBPEmb,YCat_validvBPEmb,X_testBibBPEmb,YCat_testBibBPEmb)
+    
+    rnnModel=pe.RNNModel()
+    pe.fit(bertModel,epochs=5,train_loader=train_loader,valid_loader=valid_loader,class_weights=YCatWeight)

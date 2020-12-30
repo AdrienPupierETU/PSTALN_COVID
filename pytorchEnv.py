@@ -38,7 +38,7 @@ def prepare_textsBert(texts, labels,maxlen):
   Y = torch.tensor(labels).long()
   return X.to(device), Y.to(device)
 
-def prepare_textsBpemb(texts,labels):
+def prepare_textsBpemb(texts,labels,maxlen):
   X = torch.LongTensor(len(texts), maxlen).fill_(bpemb_en.vocab_size) #padding is last
   for i, text in enumerate(texts):
     indexed_tokens = torch.tensor(bpemb_en.encode_ids(text))
@@ -138,4 +138,20 @@ class BertClassifierSequence(nn.Module):
     logits = self.classifier(pooled_output)  # (bs, num_labels)
     return F.softmax(logits,dim=1)
 
-class
+hidden_size=64
+n_layers=1
+n_direction=1
+class RNNModel(nn.Module):
+  def __init__(self):
+    super().__init__()
+    self.embed =nn.Embedding.from_pretrained(torch.tensor(bpemb_en.vectors))
+    self.rnn = nn.GRU(bpemb_en.dim ,hidden_size,num_layers=n_layers, bidirectional=False, batch_first=True)
+    self.dropout = nn.Dropout(0.8)
+    self.decision = nn.Linear(hidden_size*n_layers*n_direction, 7)
+    self.to(device)
+
+  def forward(self,x):
+    embed=self.embed(x)
+    output, hidden = self.rnn(embed.float())
+    drop = self.dropout(hidden)
+    return self.decision(drop.transpose(0, 1).contiguous().view(x.size(0), -1))
